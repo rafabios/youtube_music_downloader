@@ -1,106 +1,125 @@
-# 🎵 Script de Download Automático de Músicas
+🎵 Music Downloader Automático (via Google Sheets)
+==================================================
 
-Este script automatiza o download de músicas listadas em uma planilha do Google Sheets usando o **yt-dlp**.
+Baixe suas músicas de qualquer lugar do mundo 🌍 — direto da nuvem!
+Este script conecta-se a uma planilha do Google Sheets, lê as faixas que você cadastrou (com nome do artista, música e gênero) e faz o download automático do áudio com qualidade de estúdio (320 kbps).
+Perfeito para quem quer manter sua coleção de músicas sempre atualizada — seja no seu computador, NAS, ou até direto no seu servidor.
 
-## 📋 Como funciona
+--------------------------------------------------
+🚀 Funcionalidades
+--------------------------------------------------
 
-1. O script baixa uma planilha CSV hospedada no Google Sheets.
-2. Cada linha deve conter as colunas:
-   - **Nome** → Nome do arquivo (sem .mp3)
-   - **URL** → Link do vídeo/música (YouTube, SoundCloud, etc.)
-   - **Gênero** → Pasta onde a música será salva
-3. Cada música baixada é registrada em `historico.txt`.
-4. O script **não baixa novamente** arquivos que já estão no histórico.
 
-## 🧰 Estrutura dos arquivos
+- Baixa músicas do YouTube automaticamente (via `yt_dlp`)  
+- Lê a lista diretamente de uma planilha Google pública  
+- Cria subpastas por **gênero musical** dentro da pasta `output/`  
+- Detecta automaticamente o **BPM** (batidas por minuto)  
+- Mantém um histórico das músicas baixadas para evitar duplicatas  
+- Funciona em Windows, Linux ou macOS
+--------------------------------------------------
+🧩 Estrutura da planilha no Google Sheets
+--------------------------------------------------
 
+Crie uma planilha com as seguintes colunas:
+
+
+| Artista | Musica | (opcional) Tag/Genero |
+|---------|--------|----------------------|
+| Adam Port | Afro House | House |
+| Vintage Culture | It Is What It Is | Tech House |
+| Illusionize | Groove Delight | Bass House |
+
+--------------------------------------------------
+☁️ Como criar e compartilhar a planilha no Google Sheets
+--------------------------------------------------
+
+1. Vá para https://sheets.google.com e crie uma nova planilha.
+2. Copie a estrutura acima (3 colunas: Artista, Musica, (opcional) Tag/Genero).
+3. Após preencher suas músicas, clique em:
+   - Arquivo → Compartilhar → Publicar na Web
+   - Escolha o tipo “Planilha inteira” e o formato “Valores separados por vírgulas (.csv)”.
+4. Após publicar, copie o link gerado.
+   Ele terá formato parecido com este:
+
+   https://docs.google.com/spreadsheets/d/1ABCdEfGhIJKlmnopQRstuVWxyz/export?format=csv
+
+5. Substitua a URL no seu main.py nesta linha:
+
+   GOOGLE_SHEET_CSV = "https://docs.google.com/spreadsheets/d/1ABCdEfGhIJKlmnopQRstuVWxyz/export?format=csv"
+
+--------------------------------------------------
+💻 Instalação e uso
+--------------------------------------------------
+
+🔧 Requisitos:
+- Python 3.8 ou superior
+- FFmpeg instalado (necessário para extrair áudio)
+
+📦 Instalar dependências
+
+Windows:
+1. Abra o Prompt de Comando na pasta do projeto.
+2. Execute:
+   pip install -r requirements.txt
+
+Linux/macOS:
+   sudo apt install ffmpeg -y
+   pip install -r requirements.txt
+
+--------------------------------------------------
+▶️ Executando o script
+--------------------------------------------------
+
+Windows:
+   python main.py
+
+Linux/macOS:
+   python3 main.py
+
+Durante a execução, o script irá:
+1. Baixar os dados da planilha pública.
+2. Criar uma pasta "output/" (com subpastas por gênero).
+3. Baixar as músicas, renomeando com BPM quando possível.
+4. Registrar os nomes baixados no "historico.txt" (para evitar duplicatas futuras).
+
+--------------------------------------------------
+📁 Estrutura gerada
+--------------------------------------------------
 ```
 musica_downloader/
+│
 ├── main.py
 ├── requirements.txt
-├── README.md
-└── historico.txt  (gerado automaticamente)
+├── historico.txt
+├── baixados.txt
+├── output/
+│   ├── House/
+│   │   └── Adam Port - Afro House (122 BPM).mp3
+│   ├── Tech House/
+│   │   └── Vintage Culture - It Is What It Is (124 BPM).mp3
+│   └── Sem_Genero/
+│       └── Artista - Musica.mp3
 ```
+--------------------------------------------------
+💡 Dica
+--------------------------------------------------
 
----
+Você pode deixar o script rodando de hora em hora (por exemplo, para baixar automaticamente novas faixas adicionadas na planilha).
 
-## 💻 Instalação e uso
+Linux/macOS: use o crontab
+Windows: use o Agendador de Tarefas
 
-### 🔹 Windows
+Exemplo no macOS/Linux:
+   crontab -e
 
-1. **Instale o Python** (versão 3.9 ou superior):
-   - Baixe em [python.org/downloads](https://www.python.org/downloads/)
-   - Durante a instalação, marque a opção **“Add Python to PATH”**
+E adicione:
+   0 * * * * /usr/bin/python3 /caminho/para/main.py
 
-2. **Instale as dependências**
-   ```bash
-   pip install -r requirements.txt
-   ```
+Isso fará o script rodar automaticamente a cada 1 hora. ⏱️
 
-3. **Execute o script**
-   ```bash
-   python main.py
-   ```
+--------------------------------------------------
+🧠 Créditos
+--------------------------------------------------
 
-### 🔹 Linux / macOS
-
-1. **Instale o Python e pip** (caso não tenha):
-   ```bash
-   sudo apt update && sudo apt install -y python3 python3-pip
-   ```
-
-2. **Instale as dependências**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Execute o script**
-   ```bash
-   python3 main.py
-   ```
-
----
-
-## 🧾 Histórico
-
-O arquivo `historico.txt` é atualizado automaticamente sempre que uma música é baixada com sucesso.  
-Ele contém apenas o nome dos arquivos já baixados, garantindo que não sejam baixados novamente.
-
----
-
-## 🧩 Requisitos adicionais
-
-- `ffmpeg` deve estar instalado no sistema (necessário para converter áudio).
-
-### Instalação do ffmpeg
-
-#### Windows
-Baixe o executável em: [https://ffmpeg.org/download.html](https://ffmpeg.org/download.html)  
-Adicione a pasta `bin` do ffmpeg ao PATH.
-
-#### Linux
-```bash
-sudo apt install ffmpeg
-```
-
-#### macOS
-```bash
-brew install ffmpeg
-```
-
----
-
-## 🧠 Dica
-
-Você pode automatizar o script para rodar periodicamente:
-- **Windows:** usar o *Agendador de Tarefas*
-- **Linux/macOS:** adicionar no `crontab`
-
-Exemplo de crontab para rodar a cada hora:
-```bash
-0 * * * * /usr/bin/python3 /caminho/para/musica_downloader/main.py
-```
-
----
-
-Feito com ❤️ para automatizar seus downloads musicais!
+Desenvolvido com ❤️ para DJs, produtores e colecionadores que querem uma forma prática de gerenciar downloads musicais pela nuvem.
+A inteligência do script garante que você nunca baixe duas vezes a mesma faixa — e que tudo fique organizado por gênero e BPM.
